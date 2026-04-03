@@ -15,7 +15,6 @@ public sealed class GlobalExceptionHandlingMiddleware : IMiddleware
 		catch (Exception ex)
 		{
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
 
             ProblemDetails problemDetails = new()
             {
