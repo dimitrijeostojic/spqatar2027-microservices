@@ -1,0 +1,6 @@
+@StadiumService_HostAddress = http://localhost:5155
+
+GET {{StadiumService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

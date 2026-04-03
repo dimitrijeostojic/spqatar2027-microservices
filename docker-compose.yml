@@ -1,0 +1,72 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "DimitrijeIPIS2026"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - spqatar-network
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - spqatar-network
+
+  auth-service:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    container_name: auth-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AuthDB;User Id=sa;Password=DimitrijeIPIS2026;TrustServerCertificate=True
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
+      - Jwt__Issuer=SPQatar2027
+      - Jwt__Audience=SPQatar2027
+    ports:
+      - "5001:8080"
+    depends_on:
+      - sqlserver
+    networks:
+      - spqatar-network
+    restart: on-failure
+
+  stadium-service:
+    build:
+      context: ./StadiumService
+      dockerfile: Dockerfile
+    container_name: stadium-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MongoDb__ConnectionString=mongodb://mongodb:27017
+      - MongoDb__DatabaseName=StadiumDB
+      - MongoDb__CollectionName=stadiums
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
+      - Jwt__Issuer=SPQatar2027
+      - Jwt__Audience=SPQatar2027
+    ports:
+      - "5004:8080"
+    depends_on:
+      - mongodb
+    networks:
+      - spqatar-network
+    restart: on-failure
+
+volumes:
+  sqlserver_data:
+  mongodb_data:
+
+networks:
+  spqatar-network:
+    driver: bridge

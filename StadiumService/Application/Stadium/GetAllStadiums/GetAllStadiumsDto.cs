@@ -1,0 +1,10 @@
+﻿using Application.Common;
+
+namespace Application.Stadium.GetAllStadiums;
+
+public sealed class GetAllStadiumsDto : Dto
+{
+    public required string StadiumName { get; set; }
+    public required string City { get; set; }
+    public required int Capacity { get; set; }
+}

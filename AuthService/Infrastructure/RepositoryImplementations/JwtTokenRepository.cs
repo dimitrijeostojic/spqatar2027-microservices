@@ -1,0 +1,42 @@
+﻿using Domain.Entities;
+using Domain.RepositoryInterfaces;
+using Infrastructure.Options;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace Infrastructure.RepositoryImplementations;
+
+public sealed class JwtTokenRepository(IOptions<JwtOptions> options) : IJwtTokenRepository
+{
+    private readonly JwtOptions _options = options.Value;
+    public async Task<string> GenerateTokenAsync(User user, IList<string> roles)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Email, user.Email ?? string.Empty)
+        };
+
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)), SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+             issuer: _options.Issuer,
+              audience: _options.Audience,
+              claims: claims,
+              expires: DateTime.UtcNow.AddHours(1),
+              signingCredentials: signingCredentials
+            );
+
+        string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return tokenValue;
+    }
+}
