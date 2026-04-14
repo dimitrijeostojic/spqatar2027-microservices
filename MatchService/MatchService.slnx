@@ -1,3 +1,7 @@
 <Solution>
+  <Project Path="Application/Application.csproj" Id="7d038bcb-e6dc-4102-92ba-7e437b8b333f" />
+  <Project Path="Core/Core.csproj" Id="e01f4416-6126-49d6-ae35-3c639237ecf2" />
+  <Project Path="Domain/Domain.csproj" Id="afd24e5e-bc56-4889-9739-0df9de6848f4" />
+  <Project Path="Infrastructure/Infrastructure.csproj" Id="5df7be0a-76cd-4bce-8a80-33dd024b8a66" />
   <Project Path="MatchService/MatchService.csproj" />
 </Solution>
