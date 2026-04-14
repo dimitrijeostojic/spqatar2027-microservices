@@ -22,6 +22,20 @@ services:
       - mongodb_data:/data/db
     networks:
       - spqatar-network
+      
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - spqatar-network
 
   auth-service:
     build:
@@ -63,9 +77,37 @@ services:
       - spqatar-network
     restart: on-failure
 
+  match-service:
+    build:
+      context: ./MatchService
+      dockerfile: Dockerfile
+    container_name: match-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MatchDB;User Id=sa;Password=DimitrijeIPIS2026;TrustServerCertificate=True
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
+      - Jwt__Issuer=SPQatar2027
+      - Jwt__Audience=SPQatar2027
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__Username=guest
+      - RabbitMq__Password=guest
+      - ServiceUrls__TeamService=http://team-service:8080/
+      - ServiceUrls__StadiumService=http://stadium-service:8080/
+    ports:
+      - "5003:8080"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+      - team-service
+      - stadium-service
+    networks:
+      - spqatar-network
+    restart: on-failure
+
 volumes:
   sqlserver_data:
   mongodb_data:
+  rabbitmq_data:
 
 networks:
   spqatar-network:
