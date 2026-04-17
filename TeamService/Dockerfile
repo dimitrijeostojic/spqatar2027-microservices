@@ -5,11 +5,11 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["TeamService.Core/TeamService.Core.csproj", "TeamService.Core/"]
-COPY ["TeamService.Domain/TeamService.Domain.csproj", "TeamService.Domain/"]
-COPY ["TeamService.Application/TeamService.Application.csproj", "TeamService.Application/"]
-COPY ["TeamService.Infrastructure/TeamService.Infrastructure.csproj", "TeamService.Infrastructure/"]
-COPY ["TeamService/Team.TeamService.csproj", "TeamService.TeamService/"]
+COPY ["Core/Core.csproj", "Core/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["TeamService/TeamService.csproj", "TeamService/"]
 
 RUN dotnet restore "TeamService/TeamService.csproj"
 
