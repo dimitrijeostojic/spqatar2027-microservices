@@ -1,5 +1,6 @@
 using Application;
 using Infrastructure;
+using Infrastructure.Options;
 using MatchService.Behaviors;
 using MatchService.Extensions;
 using MatchService.Logging;
@@ -18,22 +19,6 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer()
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
-{
-    var jwtSection = builder.Configuration.GetSection("Jwt");
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSection["Issuer"],
-        ValidAudience = jwtSection["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtSection["SecretKey"]!))
-    };
-});
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
 builder.Services.AddHttpLoggingInterceptor<ErrorHttpLoggingInterceptor>();
@@ -75,9 +60,26 @@ builder.Services.AddSwaggerGen(options =>
 
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
-//builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 builder.Services.ConfigureOptions<ServiceUrlsOptionsSetup>();
 builder.Services.ConfigureOptions<RabbitMqOptionsSetup>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtOptions.SecretKey!))
+        };
+    });
 
 builder.Services.AddTransient<GlobalExceptionMiddleware>();
 builder.Services.AddProblemDetails();

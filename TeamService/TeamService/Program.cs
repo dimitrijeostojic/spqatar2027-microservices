@@ -1,5 +1,6 @@
 using Application;
 using Infrastructure;
+using Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TeamService.Behaviors;
 using TeamService.Extensions;
+using TeamService.Logging;
 using TeamService.Middlewares;
 using TeamService.OptionsSetup;
 
@@ -19,17 +21,18 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var jwtSection = builder.Configuration.GetSection("Jwt");
+        var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSection["Issuer"],
-            ValidAudience = jwtSection["Audience"],
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSection["SecretKey"]!))
+                Encoding.UTF8.GetBytes(jwtOptions.SecretKey!))
         };
     });
 
@@ -70,6 +73,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
+builder.Services.AddHttpLoggingInterceptor<ErrorHttpLoggingInterceptor>();
 builder.Services.AddTransient<GlobalExceptionMiddleware>();
 builder.Services.AddProblemDetails();
 

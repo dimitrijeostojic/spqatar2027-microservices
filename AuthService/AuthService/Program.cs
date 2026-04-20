@@ -1,6 +1,7 @@
 using Application;
 using AuthService.Behaviors;
 using AuthService.Extensions;
+using AuthService.Logging;
 using AuthService.Middleware;
 using AuthService.OptionsSetup;
 using Infrastructure;
@@ -25,6 +26,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
+builder.Services.AddHttpLoggingInterceptor<ErrorHttpLoggingInterceptor>();
 
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();

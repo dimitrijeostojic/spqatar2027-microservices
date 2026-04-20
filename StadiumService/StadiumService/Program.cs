@@ -1,12 +1,16 @@
 using Application;
 using Infrastracture.Seed;
 using Infrastructure;
+using Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StadiumService.Behaviors;
+using StadiumService.Logging;
 using StadiumService.Middleware;
 using StadiumService.OptionsSetup;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,10 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
 
-builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -50,13 +51,32 @@ builder.Services.AddSwaggerGen(options =>
             });
 });
 
-builder.Services.ConfigureOptions<MobgoDbOptionsSetup>();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
-builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+builder.Services.ConfigureOptions<MobgoDbOptionsSetup>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()!;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtOptions.SecretKey!))
+        };
+    });
 
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
+builder.Services.AddHttpLoggingInterceptor<ErrorHttpLoggingInterceptor>();
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
