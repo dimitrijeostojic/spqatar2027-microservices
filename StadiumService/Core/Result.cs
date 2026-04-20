@@ -2,8 +2,8 @@
 
 public class Result<T> where T : class
 {
-    public T? Value { get; set; }
-    public Error Error { get; set; }
+    public T? Value { get; }
+    public Error Error { get; }
     public bool IsSuccess => Error == Error.None;
 
     public Result(T? value)
