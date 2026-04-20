@@ -1,8 +1,10 @@
 using Application;
 using Infrastracture.Seed;
 using Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using StadiumService.Behaviors;
 using StadiumService.Middleware;
 using StadiumService.OptionsSetup;
 
@@ -52,6 +54,7 @@ builder.Services.ConfigureOptions<MobgoDbOptionsSetup>();
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
 
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
 

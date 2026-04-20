@@ -1,4 +1,4 @@
-﻿using Application.Team.Create;
+using Application.Team.Create;
 using Application.Team.Delete;
 using Application.Team.GetAll;
 using Application.Team.GetById;
@@ -32,7 +32,7 @@ public class TeamController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
-    // Endpoint koji koristi Match.Service za validaciju
+    [AllowAnonymous]
     [HttpGet("{publicId:guid}/exists")]
     public async Task<IActionResult> Exists(Guid publicId, CancellationToken cancellationToken)
     {

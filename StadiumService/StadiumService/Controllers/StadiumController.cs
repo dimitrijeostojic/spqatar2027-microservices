@@ -1,9 +1,8 @@
-﻿using Application.Stadium.CheckAvailability;
+using Application.Stadium.CheckAvailability;
 using Application.Stadium.GetAll;
 using Application.Stadium.GetByPublicId;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using StadiumService.Extensions;
 
@@ -35,6 +34,7 @@ public class StadiumController : ControllerBase
         return result.ToActionResult();
     }
 
+    [AllowAnonymous]
     [HttpGet("{publicId:guid}/exists")]
     public async Task<IActionResult> CheckExists(Guid publicId, CancellationToken cancellationToken)
     {

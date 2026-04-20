@@ -1,9 +1,11 @@
 using Application;
 using Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using TeamService.Behaviors;
 using TeamService.Extensions;
 using TeamService.Middlewares;
 using TeamService.OptionsSetup;
@@ -67,6 +69,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
 builder.Services.AddTransient<GlobalExceptionMiddleware>();
 builder.Services.AddProblemDetails();
 
