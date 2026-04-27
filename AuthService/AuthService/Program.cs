@@ -14,7 +14,6 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastracture(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -30,9 +29,13 @@ builder.Services.AddHttpLoggingInterceptor<ErrorHttpLoggingInterceptor>();
 
 builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
-
 builder.Services.AddAuthorization();
 
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")!,
+        name: "sqlserver",
+        tags: ["db", "sql"]);
 
 var app = builder.Build();
 
@@ -41,13 +44,10 @@ app.UseSwaggerUI();
 
 await app.ApplyMigrationsAsync();
 
-app.UseHttpsRedirection();
-
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
