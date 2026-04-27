@@ -43,9 +43,9 @@ services:
       dockerfile: Dockerfile
     container_name: auth-service
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AuthDB;User Id=sa;Password=DimitrijeIPIS2026;TrustServerCertificate=True
-      - Jwt__SecretKey=bbuosyJSSGPOosflUSJ75JJHst6yjjjST5rt65SY77uhSYSko098HHhgst
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
       - Jwt__Issuer=SPQatar2027
       - Jwt__Audience=SPQatar2027
     ports:
@@ -62,11 +62,11 @@ services:
       dockerfile: Dockerfile
     container_name: stadium-service
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - MongoDb__ConnectionString=mongodb://mongodb:27017
       - MongoDb__DatabaseName=StadiumDB
       - MongoDb__CollectionName=stadiums
-      - Jwt__SecretKey=bbuosyJSSGPOosflUSJ75JJHst6yjjjST5rt65SY77uhSYSko098HHhgst
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
       - Jwt__Issuer=SPQatar2027
       - Jwt__Audience=SPQatar2027
     ports:
@@ -83,9 +83,9 @@ services:
       dockerfile: Dockerfile
     container_name: team-service
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=TeamDB;User Id=sa;Password=DimitrijeIPIS2026;TrustServerCertificate=True
-      - Jwt__SecretKey=bbuosyJSSGPOosflUSJ75JJHst6yjjjST5rt65SY77uhSYSko098HHhgst
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
       - Jwt__Issuer=SPQatar2027
       - Jwt__Audience=SPQatar2027
       - RabbitMq__Host=rabbitmq
@@ -106,9 +106,9 @@ services:
       dockerfile: Dockerfile
     container_name: match-service
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=MatchDB;User Id=sa;Password=DimitrijeIPIS2026;TrustServerCertificate=True
-      - Jwt__SecretKey=bbuosyJSSGPOosflUSJ75JJHst6yjjjST5rt65SY77uhSYSko098HHhgst
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
       - Jwt__Issuer=SPQatar2027
       - Jwt__Audience=SPQatar2027
       - RabbitMq__Host=rabbitmq
@@ -122,6 +122,27 @@ services:
       - sqlserver
       - rabbitmq
       - team-service
+      - stadium-service
+    networks:
+      - spqatar-network
+    restart: on-failure
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
+      - Jwt__Issuer=SPQatar2027
+      - Jwt__Audience=SPQatar2027
+    ports:
+      - "5000:8080"
+    depends_on:
+      - auth-service
+      - team-service
+      - match-service
       - stadium-service
     networks:
       - spqatar-network
