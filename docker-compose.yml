@@ -38,6 +38,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    hostname: tournament-queue
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -187,6 +188,10 @@ services:
       - Jwt__SecretKey=KG+8eq3WYLLKv26GTW5S+q6BQvaPefH/yMmMNwCYMzo=
       - Jwt__Issuer=SPQatar2027
       - Jwt__Audience=SPQatar2027
+      - ReverseProxy__Clusters__auth-cluster__Destinations__auth-destination__Address=http://auth-service:8080/
+      - ReverseProxy__Clusters__team-cluster__Destinations__team-destination__Address=http://team-service:8080/
+      - ReverseProxy__Clusters__match-cluster__Destinations__match-destination__Address=http://match-service:8080/
+      - ReverseProxy__Clusters__stadium-cluster__Destinations__stadium-destination__Address=http://stadium-service:8080/
     ports:
       - "5000:8080"
     depends_on:
