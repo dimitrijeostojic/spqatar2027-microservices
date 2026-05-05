@@ -40,8 +40,8 @@ public sealed class SetupTwoFactorRequestHandler(
         var qrCode = new PngByteQRCode(qrCodeData);
         var qrBytes = qrCode.GetGraphic(10);
         var qrBase64 = Convert.ToBase64String(qrBytes);
-
+        var qrCodeImg = $"data:image/png;base64,{qrBase64}";
         return Result<SetupTwoFactorResponse>.Success(
-            new SetupTwoFactorResponse(manualEntryKey, qrBase64));
+            new SetupTwoFactorResponse(manualEntryKey, qrCodeImg));
     }
 }
