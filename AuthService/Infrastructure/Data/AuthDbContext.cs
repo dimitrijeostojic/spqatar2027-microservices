@@ -8,6 +8,8 @@ namespace Infrastructure.Data;
 
 public class AuthDbContext(DbContextOptions<AuthDbContext> options) : IdentityDbContext<User>(options), IUnitOfWork
 {
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

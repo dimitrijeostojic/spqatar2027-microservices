@@ -1,4 +1,5 @@
-﻿using Application.Login;
+using Application.Login;
+using Application.RefreshToken;
 using Application.Registration;
 using AuthService.Extensions;
 using MediatR;
@@ -21,6 +22,13 @@ public class AuthController(IMediator mediator) : ControllerBase
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(request, cancellationToken);
+        return result.ToActionResult();
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(request, cancellationToken);
         return result.ToActionResult();

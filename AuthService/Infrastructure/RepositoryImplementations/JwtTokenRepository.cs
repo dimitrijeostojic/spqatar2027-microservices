@@ -31,7 +31,7 @@ public sealed class JwtTokenRepository(IOptions<JwtOptions> options) : IJwtToken
              issuer: _options.Issuer,
               audience: _options.Audience,
               claims: claims,
-              expires: DateTime.UtcNow.AddHours(1),
+              expires: DateTime.UtcNow.AddMinutes(_options.ExpirationInMinutes),
               signingCredentials: signingCredentials
             );
 

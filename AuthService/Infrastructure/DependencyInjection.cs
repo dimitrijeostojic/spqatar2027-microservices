@@ -29,6 +29,7 @@ public static class DependencyInjection
 
         services.TryAddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AuthDbContext>());
         services.AddScoped<IJwtTokenRepository, JwtTokenRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         return services;
     }
 }

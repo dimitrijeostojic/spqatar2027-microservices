@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Core;
 using Domain.Entities;
 using Domain.RepositoryInterfaces;
@@ -9,12 +9,14 @@ namespace Application.Login;
 
 public sealed class LoginRequestHandler(
     UserManager<User> userManager,
-    IJwtTokenRepository jwtTokenRepository
+    IJwtTokenRepository jwtTokenRepository,
+    IRefreshTokenRepository refreshTokenRepository
     )
     : IRequestHandler<LoginRequest, Result<LoginResponse>>
 {
     private readonly UserManager<User> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     private readonly IJwtTokenRepository _jwtTokenRepository = jwtTokenRepository ?? throw new ArgumentNullException(nameof(jwtTokenRepository));
+    private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
 
     public async Task<Result<LoginResponse>> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
@@ -25,11 +27,9 @@ public sealed class LoginRequestHandler(
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var jwtToken = await _jwtTokenRepository.GenerateTokenAsync(user, roles);
+        var accessToken = await _jwtTokenRepository.GenerateTokenAsync(user, roles);
+        var refreshToken = await _refreshTokenRepository.CreateAsync(user.Id, cancellationToken);
 
-        var response = new LoginResponse(jwtToken);
-
-        return Result<LoginResponse>.Success(response);
-
+        return Result<LoginResponse>.Success(new LoginResponse(accessToken, refreshToken.Token));
     }
 }

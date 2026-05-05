@@ -6,4 +6,4 @@ using System.Threading.Tasks;
 
 namespace Application.Login;
 
-public sealed record LoginResponse(string JwtToken);
+public sealed record LoginResponse(string AccessToken, string RefreshToken);
