@@ -1,6 +1,7 @@
 ﻿using Application.Group.Create;
 using Application.Group.GetAll;
 using Application.Group.GetGroupStandings;
+using Core;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,7 @@ public class GroupController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateGroupRequest request, CancellationToken cancellationToken)
     {

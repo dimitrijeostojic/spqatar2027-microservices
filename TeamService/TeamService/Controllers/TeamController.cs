@@ -3,6 +3,7 @@ using Application.Team.Delete;
 using Application.Team.GetAll;
 using Application.Team.GetById;
 using Application.Team.Update;
+using Core;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,10 +39,10 @@ public class TeamController(IMediator mediator) : ControllerBase
     {
         var result = await _mediator.Send(
             new GetTeamByIdRequest { PublicId = publicId }, cancellationToken);
-
         return result.ToActionResult();
     }
 
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Manager}")]
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateTeamRequest request,
@@ -51,6 +52,7 @@ public class TeamController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Manager}")]
     [HttpPut("{publicId:guid}")]
     public async Task<IActionResult> Update(
         Guid publicId,
@@ -62,6 +64,7 @@ public class TeamController(IMediator mediator) : ControllerBase
         return result.ToActionResult();
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("{publicId:guid}")]
     public async Task<IActionResult> Delete(Guid publicId, CancellationToken cancellationToken)
     {
