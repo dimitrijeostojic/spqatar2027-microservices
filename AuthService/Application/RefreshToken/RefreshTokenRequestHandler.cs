@@ -34,10 +34,9 @@ public sealed class RefreshTokenRequestHandler(
         existingToken.Revoke();
         var newRefreshToken = Domain.Entities.RefreshToken.Create(existingToken.UserId);
         await _refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         var roles = await _userManager.GetRolesAsync(existingToken.User);
         var newAccessToken = await _jwtTokenRepository.GenerateTokenAsync(existingToken.User, roles);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<RefreshTokenResponse>.Success(new RefreshTokenResponse(newAccessToken, newRefreshToken.Token));
     }
