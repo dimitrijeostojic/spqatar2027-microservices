@@ -14,7 +14,7 @@ public sealed class KnockoutMatchDto
     public int? HomePoints { get; set; }
     public int? AwayPoints { get; set; }
     public Guid? WinnerPublicId { get; set; }
-    public Guid? StadiumPublicId { get; set; }
+    public string? StadiumName { get; set; }
     public DateTime? ScheduledAt { get; set; }
     public KnockoutMatchStatus Status { get; set; }
 }

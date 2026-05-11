@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Contracts;
 using Application.Knockout.GetKnockoutBracket;
 using Core;
 using Domain.Abstraction;
@@ -9,14 +10,19 @@ namespace Application.Knockout.ScheduleKnockoutMatch;
 
 internal sealed class ScheduleKnockoutMatchRequestHandler(
     IKnockoutBracketRepository bracketRepository,
+    IStadiumServiceClient stadiumServiceClient,
     IUnitOfWork unitOfWork)
     : IRequestHandler<ScheduleKnockoutMatchRequest, Result<ScheduleKnockoutMatchResponse>>
 {
+    private readonly IKnockoutBracketRepository _bracketRepository = bracketRepository ?? throw new ArgumentNullException(nameof(bracketRepository));
+    private readonly IStadiumServiceClient _stadiumServiceClient = stadiumServiceClient ?? throw new ArgumentNullException(nameof(stadiumServiceClient));
+    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+
     public async Task<Result<ScheduleKnockoutMatchResponse>> Handle(
         ScheduleKnockoutMatchRequest request,
         CancellationToken cancellationToken)
     {
-        var bracket = await bracketRepository.GetByMatchPublicIdAsync(request.MatchPublicId, cancellationToken);
+        var bracket = await _bracketRepository.GetByMatchPublicIdAsync(request.MatchPublicId, cancellationToken);
 
         if (bracket is null)
             return Result<ScheduleKnockoutMatchResponse>.Failure(ApplicationErrors.NotFound);
@@ -25,7 +31,14 @@ internal sealed class ScheduleKnockoutMatchRequestHandler(
 
         match.Schedule(request.ScheduledDateTime, request.StadiumPublicId);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        string? stadiumName = null;
+        if (match.StadiumPublicId.HasValue)
+        {
+            var stadium = await _stadiumServiceClient.GetStadiumByPublicIdAsync(match.StadiumPublicId.Value, cancellationToken);
+            stadiumName = stadium?.StadiumName;
+        }
 
         return Result<ScheduleKnockoutMatchResponse>.Success(new ScheduleKnockoutMatchResponse
         {
@@ -41,7 +54,7 @@ internal sealed class ScheduleKnockoutMatchRequestHandler(
                 HomePoints = match.HomePoints,
                 AwayPoints = match.AwayPoints,
                 WinnerPublicId = match.WinnerPublicId,
-                StadiumPublicId = match.StadiumPublicId,
+                StadiumName = stadiumName,
                 ScheduledAt = match.ScheduledAt,
                 Status = match.Status
             }
