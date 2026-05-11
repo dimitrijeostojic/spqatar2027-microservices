@@ -12,10 +12,8 @@ public sealed class KnockoutMatchConfiguration : IEntityTypeConfiguration<Knocko
         builder.HasKey(x => x.Id);
         builder.Property(x => x.PublicId).IsRequired();
 
-        // BracketId je int FK → KnockoutBracket.Id (PK)
         builder.Property(x => x.BracketId).IsRequired();
 
-        // Ovi propertyji su nullable — popunjavaju se tek kada tim prođe u rundu
         builder.Property(x => x.HomeTeamPublicId);
         builder.Property(x => x.AwayTeamPublicId);
         builder.Property(x => x.HomeTeamName).HasMaxLength(200);
@@ -31,7 +29,6 @@ public sealed class KnockoutMatchConfiguration : IEntityTypeConfiguration<Knocko
         builder.Property(x => x.MatchOrder).IsRequired();
         builder.Property(x => x.Status).IsRequired();
 
-        // Standardni FK: BracketId → KnockoutBracket.Id (int PK), nema potrebe za HasPrincipalKey
         builder.HasOne(x => x.Bracket)
             .WithMany(x => x.Matches)
             .HasForeignKey(x => x.BracketId)
