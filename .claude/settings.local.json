@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\DimitrijeOstojic\\\\Desktop\\\\Dimitrije\\\\Master\\\\IzabranaPoglavljaInformacionihSistema\\\\IzabranaPoglavljaInformacionihSistemaBack\" -Directory)",
-      "Bash(Select-Object Name)"
-    ]
-  }
-}
