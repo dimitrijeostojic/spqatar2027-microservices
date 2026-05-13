@@ -27,5 +27,7 @@ public static class ApplicationErrors
         new("Knockout.InvalidSeededTeamsCount", "Exactly 8 seeded teams are required to create a knockout bracket.");
     public static readonly Error DuplicateSeededTeams =
         new("Knockout.DuplicateSeededTeams", "Seeded teams must all be different.");
+    public static readonly Error BracketExists =
+        new("Knockout.BracketExists", "Bracket already exists");
 
 }
