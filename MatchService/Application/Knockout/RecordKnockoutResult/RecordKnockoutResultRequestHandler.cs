@@ -32,10 +32,7 @@ public sealed class RecordKnockoutResultRequestHandler(
         if (match.Status != KnockoutMatchStatus.Scheduled)
             return Result<RecordKnockoutResultResponse>.Failure(ApplicationErrors.KnockoutMatchNotScheduled);
 
-        match.RecordResult(request.HomePoints!.Value, request.AwayPoints!.Value);
-
-        // Napredovanje pobednika u sledeću rundu (osim za Final i ThirdPlace)
-        bracket.AdvanceWinner(match.PublicId);
+        bracket.RecordMatchResult(match.PublicId, request.HomePoints!.Value, request.AwayPoints!.Value);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

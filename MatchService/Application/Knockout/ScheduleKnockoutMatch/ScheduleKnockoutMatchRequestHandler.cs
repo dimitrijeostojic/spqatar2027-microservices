@@ -27,11 +27,11 @@ internal sealed class ScheduleKnockoutMatchRequestHandler(
         if (bracket is null)
             return Result<ScheduleKnockoutMatchResponse>.Failure(ApplicationErrors.NotFound);
 
-        var match = bracket.Matches.First(m => m.PublicId == request.MatchPublicId);
-
-        match.Schedule(request.ScheduledDateTime, request.StadiumPublicId);
+        bracket.ScheduleMatch(request.MatchPublicId, request.ScheduledDateTime, request.StadiumPublicId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var match = bracket.Matches.First(m => m.PublicId == request.MatchPublicId);
 
         string? stadiumName = null;
         if (match.StadiumPublicId.HasValue)

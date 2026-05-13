@@ -39,8 +39,24 @@ public sealed class KnockoutBracket : Entity
         return bracket;
     }
 
-    // Poziva se nakon što handler snimi rezultat — pronalazi sledeći meč i dodeljuje pobednika (i gubitnika za 3. mesto)
-    public void AdvanceWinner(Guid completedMatchPublicId)
+    public void ScheduleMatch(Guid matchPublicId, DateTime scheduledAt, Guid? stadiumPublicId)
+    {
+        var match = _matches.FirstOrDefault(m => m.PublicId == matchPublicId)
+            ?? throw new InvalidOperationException("Match not found in this bracket.");
+
+        match.Schedule(scheduledAt, stadiumPublicId);
+    }
+
+    public void RecordMatchResult(Guid matchPublicId, int homePoints, int awayPoints)
+    {
+        var match = _matches.FirstOrDefault(m => m.PublicId == matchPublicId)
+            ?? throw new InvalidOperationException("Match not found in this bracket.");
+
+        match.RecordResult(homePoints, awayPoints);
+        AdvanceWinner(matchPublicId);
+    }
+
+    private void AdvanceWinner(Guid completedMatchPublicId)
     {
         var completed = _matches.FirstOrDefault(m => m.PublicId == completedMatchPublicId)
             ?? throw new InvalidOperationException("Match not found in this bracket.");
@@ -49,16 +65,10 @@ public sealed class KnockoutBracket : Entity
             throw new InvalidOperationException("Match is not yet completed.");
 
         var winnerId = completed.WinnerPublicId!.Value;
-        var winnerName = completed.HomeTeamPublicId == winnerId
-            ? completed.HomeTeamName!
-            : completed.AwayTeamName!;
 
-        var loserId = completed.HomeTeamPublicId == winnerId
-            ? completed.AwayTeamPublicId!.Value
-            : completed.HomeTeamPublicId!.Value;
-        var loserName = completed.HomeTeamPublicId == winnerId
-            ? completed.AwayTeamName!
-            : completed.HomeTeamName!;
+        var winnerName = completed.HomeTeamPublicId == winnerId ? completed.HomeTeamName! : completed.AwayTeamName!;
+        var loserId = completed.HomeTeamPublicId == winnerId ? completed.AwayTeamPublicId!.Value : completed.HomeTeamPublicId!.Value;
+        var loserName = completed.HomeTeamPublicId == winnerId ? completed.AwayTeamName! : completed.HomeTeamName!;
 
         switch (completed.Round)
         {
@@ -69,8 +79,6 @@ public sealed class KnockoutBracket : Entity
             case KnockoutRound.Semifinal:
                 AdvanceFromSemifinal(completed.MatchOrder, winnerId, winnerName, loserId, loserName);
                 break;
-
-                // Final i ThirdPlace nemaju napredovanje
         }
     }
 
@@ -81,10 +89,14 @@ public sealed class KnockoutBracket : Entity
         var sfMatchOrder = matchOrder <= 2 ? 1 : 2;
         var sf = GetMatch(KnockoutRound.Semifinal, sfMatchOrder);
 
-        if (matchOrder % 2 == 1)  // neparni → Home
+        if (matchOrder % 2 == 1)
+        {
             sf.AssignHomeTeam(winnerId, winnerName);
-        else                       // parni → Away
+        }
+        else
+        {
             sf.AssignAwayTeam(winnerId, winnerName);
+        }
     }
 
     private void AdvanceFromSemifinal(int matchOrder, Guid winnerId, string winnerName, Guid loserId, string loserName)

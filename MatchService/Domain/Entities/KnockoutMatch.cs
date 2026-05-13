@@ -20,7 +20,7 @@ public sealed class KnockoutMatch : Entity
     public KnockoutBracket? Bracket { get; private set; }
 
 
-    public static KnockoutMatch Create(KnockoutRound round, int matchOrder)
+    internal static KnockoutMatch Create(KnockoutRound round, int matchOrder)
     {
         return new KnockoutMatch
         {
@@ -30,7 +30,7 @@ public sealed class KnockoutMatch : Entity
         };
     }
 
-    public void AssignTeams(Guid homeTeamPublicId, string homeTeamName, Guid awayTeamPublicId, string awayTeamName)
+    internal void AssignTeams(Guid homeTeamPublicId, string homeTeamName, Guid awayTeamPublicId, string awayTeamName)
     {
         if (Status == KnockoutMatchStatus.Completed)
             throw new InvalidOperationException("Cannot assign teams to a completed match.");
@@ -42,7 +42,7 @@ public sealed class KnockoutMatch : Entity
         Status = KnockoutMatchStatus.Scheduled;
     }
 
-    public void AssignHomeTeam(Guid homeTeamPublicId, string homeTeamName)
+    internal void AssignHomeTeam(Guid homeTeamPublicId, string homeTeamName)
     {
         if (Status == KnockoutMatchStatus.Completed)
             throw new InvalidOperationException("Cannot assign teams to a completed match.");
@@ -53,7 +53,7 @@ public sealed class KnockoutMatch : Entity
             Status = KnockoutMatchStatus.Scheduled;
     }
 
-    public void AssignAwayTeam(Guid awayTeamPublicId, string awayTeamName)
+    internal void AssignAwayTeam(Guid awayTeamPublicId, string awayTeamName)
     {
         if (Status == KnockoutMatchStatus.Completed)
             throw new InvalidOperationException("Cannot assign teams to a completed match.");
@@ -64,7 +64,7 @@ public sealed class KnockoutMatch : Entity
             Status = KnockoutMatchStatus.Scheduled;
     }
 
-    public void Schedule(DateTime scheduledAt, Guid? stadiumPublicId)
+    internal void Schedule(DateTime scheduledAt, Guid? stadiumPublicId)
     {
         if (Status == KnockoutMatchStatus.Completed)
             throw new InvalidOperationException("Cannot schedule a completed match.");
@@ -73,7 +73,7 @@ public sealed class KnockoutMatch : Entity
         StadiumPublicId = stadiumPublicId;
     }
 
-    public void RecordResult(int homePoints, int awayPoints)
+    internal void RecordResult(int homePoints, int awayPoints)
     {
         if (Status != KnockoutMatchStatus.Scheduled)
             throw new InvalidOperationException("Match must be scheduled before recording a result.");
